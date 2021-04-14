@@ -70,7 +70,7 @@ $(".list-group").on("blur", "textarea", function() {
     .closest(".list-group-item")
     .index();
 
-    //tasks[status][index].text = text;
+    tasks[status][index].val() = text;
     saveTasks();
 
   var taskP = $("<p>")
@@ -110,7 +110,7 @@ $(".list-group").on("blur", "input[type='text']", function() {
     .closest(".list-group-item")
     .index();
 
-    //tasks[status][index].date = date;
+    tasks[status][index].val() = date;
     saveTasks();
 
   var taskSpan = $("<span>")
@@ -164,5 +164,7 @@ $("#remove-tasks").on("click", function() {
 
 // load tasks for the first time
 loadTasks();
+
+
 
 
