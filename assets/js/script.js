@@ -45,7 +45,7 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
-$(".list-group").on("click", "p", function() {
+$(".list-group-flush").on("click", "p", function() {
   var text = $(this)
     .text()
     .trim();
@@ -56,13 +56,74 @@ $(".list-group").on("click", "p", function() {
   textInput.trigger("focus");
 });
 
-$(".list-group").on("blur", "textarea", function() {
+$(".card .list-group-flush").sortable({
+  connectWith: $(".card .list-group-flush"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function(event) {
+    console.log("activate", this);
+  },
+  deactivate: function(event) {
+    console.log("deactivate", this);
+  },
+  over: function(event) {
+    console.log("over", event.target);
+  },
+  out: function(event) {
+    console.log("out", event.target);
+  },
+  update: function(event) {
+    var tempArr = [];
+
+    $(this).children().each(function() {
+      var arrName = $(this)
+        .attr("id")
+        .replace("list-", "");
+
+        tasks[arrName] = tempArr;
+        saveTasks();
+      var text = $(this)
+    .find("p")
+    .text()
+    .trim();
+
+  var date = $(this)
+    .find("span")
+    .text()
+    .trim();
+
+    tempArr.push({
+      text: text,
+      date: date
+    });
+    });
+    console.log(tempArr);
+  }
+});
+
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) {
+    ui.draggable.remove();
+    console.log("drop");  
+  },
+  over: function(event, ui) {
+    console.log("over");
+  },
+  out: function(event, ui) {
+    console.log("out");
+  }
+});
+
+$(".list-group-flush").on("blur", "textarea", function() {
   var text = $(this)
     .val()
     .trim();
 
   var status = $(this)
-    .closest(".list-group")
+    .closest(".list-group-flush")
     .attr("id")
     .replace("list-", "");
 
@@ -70,17 +131,17 @@ $(".list-group").on("blur", "textarea", function() {
     .closest(".list-group-item")
     .index();
 
-    tasks[status][index].val() = text;
-    saveTasks();
-
   var taskP = $("<p>")
     .addClass("m-1")
     .text(text);
 
   $(this).replaceWith(taskP);
+
+  tasks[status][index].value = text;
+    saveTasks();
 });
 
-$(".list-group").on("click", "span", function() {
+$(".list-group-flush").on("click", "span", function() {
 
   var date = $(this)
     .text()
@@ -96,13 +157,13 @@ $(".list-group").on("click", "span", function() {
   dateInput.trigger("focus");
 });
 
-$(".list-group").on("blur", "input[type='text']", function() {
+$(".list-group-flush").on("blur", "input[type='text']", function() {
   var date = $(this)
     .val()
     .trim();
 
   var status = $(this)
-    .closest(".list-group")
+    .closest(".list-group-flush")
     .attr("id")
     .replace("list-", "");
 
@@ -110,14 +171,14 @@ $(".list-group").on("blur", "input[type='text']", function() {
     .closest(".list-group-item")
     .index();
 
-    tasks[status][index].val() = date;
-    saveTasks();
-
   var taskSpan = $("<span>")
     .addClass("badge badge-primary badge-pill")
     .text(date);
 
-  $(this).replaceWith(taskSpan);
+    $(this).replaceWith(taskSpan);
+
+    tasks[status][index].value = date;
+    saveTasks();
 });
 
 $("#task-form-modal").on("show.bs.modal", function() {
