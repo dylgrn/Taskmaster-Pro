@@ -19,33 +19,6 @@ var createTask = function(taskText, taskDate, taskList) {
   $("#list-" + taskList).append(taskLi);
 };
 
-var loadTasks = function() {
-  tasks = JSON.parse(localStorage.getItem("tasks"));
-
-  // if nothing in localStorage, create a new object to track all task status arrays
-  if (!tasks) {
-    tasks = {
-      toDo: [],
-      inProgress: [],
-      inReview: [],
-      done: []
-    };
-  }
-
-  // loop over object properties
-  $.each(tasks, function(list, arr) {
-    console.log(list, arr);
-    // then loop over sub-array
-    arr.forEach(function(task) {
-      createTask(task.text, task.date, list);
-    });
-  });
-};
-
-var saveTasks = function() {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-};
-
 var auditTasks = function(taskEl) {
   var date = $(taskEl).find("span").text().trim();
 
@@ -60,21 +33,56 @@ var auditTasks = function(taskEl) {
   }
 };
 
+var loadTasks = function() {
+  tasks = JSON.parse(localStorage.getItem("tasks"));
+
+  // if nothing in localStorage, create a new object to track all task status arrays
+  if (!tasks) {
+    tasks = {
+      toDo: [],
+      inProgress: [],
+      inReview: [],
+      done: []
+    };
+  }
+
+// loop over object properties
+$.each(tasks, function(list, arr) {
+  console.log(list, arr);
+  // then loop over sub-array
+  arr.forEach(function(task) {
+    createTask(task.text, task.date, list);
+  });
+});
+};
+
+var saveTasks = function() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+};
+
 $(".card .list-group").sortable({
   connectWith: $(".card .list-group"),
   scroll: false,
   tolerance: "pointer",
   helper: "clone",
   activate: function(event) {
+    $(this).addClass("dropover");
+    $(".bottom-trash").addClass("bottom-trash-drag");
     console.log("activate", this);
   },
   deactivate: function(event) {
+    $(this).removeClass("dropover");
+    $(".bottom-trash").removeClass("bottom-trash-drag");
     console.log("deactivate", this);
   },
   over: function(event) {
+    $(event.target).addClass("drop-active");
+    $(".bottom-trash").addClass("bottom-trash-active");
     console.log(event);
   },
   out: function(event) {
+    $(event.target).removeClass("drop-active");
+    $("bottom-trash").removeClass("bottom-trash-active");
     console.log(event);
   },
   update: function(event) {
@@ -143,7 +151,7 @@ $("#task-form-modal").on("shown.bs.modal", function() {
 });
 
 // save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function() {
+$("#task-form-modal .btn-save").click(function() {
   // get form values
   var taskText = $("#modalTaskDescription").val();
   var taskDate = $("#modalDueDate").val();
@@ -257,6 +265,10 @@ $("#remove-tasks").on("click", function() {
 // load tasks for the first time
 loadTasks();
 
-
+setInterval(function () {
+  $('.card .list-group-item').each(function(index, el){
+    auditTasks(el);
+  })
+}, (1000 * 60) * 30);
 
 
